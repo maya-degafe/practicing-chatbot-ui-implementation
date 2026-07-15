@@ -17,6 +17,7 @@ import {
 } from "./mockChatService";
 import "./chatWidget.css";
 import { Loader } from "@/components/ui/loader";
+import { ArrowUp } from "lucide-react"
 
 const INITIAL_MESSAGES: ChatMessage[] = [
   {
@@ -142,14 +143,22 @@ export default function ChatWidget() {
           }}
         >
           <PromptInput value={draft} onValueChange={setDraft} className="w-full">
-            <PromptInputTextarea
-              placeholder="Type your message..."
-              disabled={isSending}
-              onKeyDown={handleComposerKeyDown}
-            />
-            <Button type="submit" size="sm" disabled={!draft.trim() || isSending}>
-              Send
-            </Button>
+            <div className="flex items-end gap-2">
+              <PromptInputTextarea
+                placeholder="Type your message..."
+                disabled={isSending}
+                onKeyDown={handleComposerKeyDown}
+                className="min-h-[36px]"
+              />
+              <Button
+                type="submit"
+                size="icon"
+                className="h-8 w-8 rounded-full mb-1 shrink-0"
+                disabled={!draft.trim() || isSending}
+              >
+                <ArrowUp className="size-4" />
+              </Button>
+            </div>
           </PromptInput>
         </form>
         </section>
