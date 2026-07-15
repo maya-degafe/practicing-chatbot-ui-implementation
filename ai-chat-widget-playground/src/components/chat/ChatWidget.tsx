@@ -7,8 +7,9 @@ import {
   MessageAvatar,
   MessageContent,
 } from "@/components/prompt-kit/message";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { PromptInput, PromptInputTextarea } from "@/components/ui/prompt-input";
+import { Button } from "@/components/ui/button";
 import {
   createUserMessage,
   sendMessage,
@@ -124,7 +125,7 @@ export default function ChatWidget() {
                   />
                   <div className="max-w-[86%] sm:max-w-[78%]">
                     <MessageContent className="bg-secondary text-secondary-foreground">
-                      Typing...
+                      ...
                     </MessageContent>
                   </div>
                 </Message>
@@ -132,31 +133,24 @@ export default function ChatWidget() {
             </ChatContainerContent>
           </ChatContainerRoot>
 
-          <form
-            className="chat-widget-composer"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void handleSend();
-            }}
-          >
-            <textarea
-              className="chat-widget-input"
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              onKeyDown={handleComposerKeyDown}
+        <form
+          className="chat-widget-composer"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void handleSend();
+          }}
+        >
+          <PromptInput value={draft} onValueChange={setDraft} className="w-full">
+            <PromptInputTextarea
               placeholder="Type your message..."
-              rows={1}
               disabled={isSending}
-              aria-label="Message input"
+              onKeyDown={handleComposerKeyDown}
             />
-            <Button
-              type="submit"
-              size="sm"
-              disabled={!draft.trim() || isSending}
-            >
+            <Button type="submit" size="sm" disabled={!draft.trim() || isSending}>
               Send
             </Button>
-          </form>
+          </PromptInput>
+        </form>
         </section>
       )}
 
