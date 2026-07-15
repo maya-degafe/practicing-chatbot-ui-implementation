@@ -16,12 +16,13 @@ import {
   type Message as ChatMessage,
 } from "./mockChatService";
 import "./chatWidget.css";
+import { Loader } from "@/components/ui/loader";
 
 const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: "intro-1",
     role: "assistant",
-    content: "Hi there. I am your popup assistant. Ask me anything.",
+    content: "Hi there. I am Capy! Ask me anything.",
     timestamp: new Date(),
   },
 ];
@@ -125,7 +126,7 @@ export default function ChatWidget() {
                   />
                   <div className="max-w-[86%] sm:max-w-[78%]">
                     <MessageContent className="bg-secondary text-secondary-foreground">
-                      ...
+                      <Loader variant="wave" size="sm" />
                     </MessageContent>
                   </div>
                 </Message>
