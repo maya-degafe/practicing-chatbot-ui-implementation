@@ -4,7 +4,6 @@ import {
 } from "@/components/prompt-kit/chat-container";
 import {
   Message,
-  MessageAvatar,
   MessageContent,
 } from "@/components/prompt-kit/message";
 import { useState } from "react";
@@ -17,7 +16,8 @@ import {
 } from "./mockChatService";
 import "./chatWidget.css";
 import { Loader } from "@/components/ui/loader";
-import { ArrowUp } from "lucide-react"
+import { ArrowUp, MessageCircle, X, Bot, ChevronDown, Ellipsis, SquarePen } from "lucide-react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 const INITIAL_MESSAGES: ChatMessage[] = [
   {
@@ -33,6 +33,19 @@ export default function ChatWidget() {
   const [draft, setDraft] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
+
+  const handleNewChat = () => {
+    setMessages([
+      {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: "Hi there. I am Capy! Ask me anything.",
+        timestamp: new Date(),
+      },
+    ]);
+
+    setDraft("");
+  };
 
   async function handleSend() {
     const content = draft.trim();
@@ -69,20 +82,55 @@ export default function ChatWidget() {
     <div className="chat-widget-root">
       {open && (
         <section className="chat-widget-panel" aria-label="AI assistant chat">
-          <header className="chat-widget-header">
+        <header className="chat-widget-header">
+          <div className="chat-widget-header-main">
+            <div className="chat-widget-header-avatar" aria-hidden="true">
+              <Bot size={18} strokeWidth={2.2} />
+            </div>
             <div>
               <p className="chat-widget-kicker">Assistant</p>
               <h2>Support Chat</h2>
             </div>
+          </div>
+
+          <div className="chat-widget-header-actions">
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <button type="button" className="chat-menu-trigger" aria-label="Chat menu">
+                  <Ellipsis size={18} />
+                </button>
+              </DropdownMenu.Trigger>
+
+              <DropdownMenu.Portal>
+                <DropdownMenu.Content
+                  className="chat-menu-content"
+                  sideOffset={8}
+                  align="end"
+                  collisionPadding={12}
+                >
+                  <DropdownMenu.Item className="chat-menu-item" onSelect={handleNewChat}>
+                    <SquarePen size={18} />
+                    <span>Start a new chat</span>
+                  </DropdownMenu.Item>
+
+                  <DropdownMenu.Item className="chat-menu-item is-disabled" disabled>
+                    <X size={18} />
+                    <span>End chat</span>
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu.Portal>
+            </DropdownMenu.Root>
+
             <button
               type="button"
               className="chat-widget-close"
               aria-label="Close chat"
               onClick={() => setOpen(false)}
             >
-              ×
+              <X strokeWidth={1.5} />
             </button>
-          </header>
+          </div>
+        </header>
 
           <ChatContainerRoot className="chat-widget-messages">
             <ChatContainerContent className="space-y-4 p-4">
@@ -96,20 +144,9 @@ export default function ChatWidget() {
                       isAssistant ? "justify-start" : "justify-end"
                     }
                   >
-                    {isAssistant && (
-                      <MessageAvatar
-                        src="/avatars/ai.png"
-                        alt="AI Assistant"
-                        fallback="AI"
-                      />
-                    )}
                     <div className="max-w-[86%] sm:max-w-[78%]">
                       <MessageContent
-                        className={
-                          isAssistant
-                            ? "bg-secondary text-secondary-foreground"
-                            : "bg-primary text-primary-foreground"
-                        }
+                        className={isAssistant ? "chat-bubble chat-bubble-assistant" : "chat-bubble chat-bubble-user"}
                       >
                         {message.content}
                       </MessageContent>
@@ -120,14 +157,9 @@ export default function ChatWidget() {
 
               {isSending && (
                 <Message className="justify-start">
-                  <MessageAvatar
-                    src="/avatars/ai.png"
-                    alt="AI Assistant"
-                    fallback="AI"
-                  />
                   <div className="max-w-[86%] sm:max-w-[78%]">
                     <MessageContent className="bg-secondary text-secondary-foreground">
-                      <Loader variant="wave" size="sm" />
+                      <Loader variant="wave" size="md" />
                     </MessageContent>
                   </div>
                 </Message>
@@ -142,24 +174,25 @@ export default function ChatWidget() {
             void handleSend();
           }}
         >
-          <PromptInput value={draft} onValueChange={setDraft} className="w-full">
-            <div className="flex items-end gap-2">
-              <PromptInputTextarea
-                placeholder="Type your message..."
-                disabled={isSending}
-                onKeyDown={handleComposerKeyDown}
-                className="min-h-[36px]"
-              />
-              <Button
-                type="submit"
-                size="icon"
-                className="h-8 w-8 rounded-full mb-1 shrink-0"
-                disabled={!draft.trim() || isSending}
-              >
-                <ArrowUp className="size-4" />
-              </Button>
-            </div>
-          </PromptInput>
+        <PromptInput value={draft} onValueChange={setDraft} className="w-full">
+          <div className="flex items-end gap-2">
+            <PromptInputTextarea
+              placeholder="Message..."
+              disabled={isSending}
+              onKeyDown={handleComposerKeyDown}
+              className="min-h-[36px] text-black placeholder:text-gray-500"
+            />
+            <Button
+              type="submit"
+              size="icon"
+              className="h-8 w-8 rounded-full mb-1 shrink-0"
+              style={{ backgroundColor: "#fcda24" }}
+              disabled={!draft.trim() || isSending}
+            >
+              <ArrowUp className="size-4" color="black"/>
+            </Button>
+          </div>
+        </PromptInput>
         </form>
         </section>
       )}
@@ -170,7 +203,11 @@ export default function ChatWidget() {
         onClick={() => setOpen((isOpen) => !isOpen)}
         aria-label={open ? "Close chat" : "Open chat"}
       >
-        {open ? "×" : "Chat"}
+        {open ? (
+        <ChevronDown strokeWidth={2.25} />
+      ) : (
+        <MessageCircle strokeWidth={2.25} />
+      )}
       </button>
     </div>
   );
